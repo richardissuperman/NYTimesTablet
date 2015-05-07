@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">NYTimesTablet</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+
+
+
+
+    <string name="unsuccesfullattach" >error! please close app and restart</string>
+    <string name="testupdatecontent" >test update is</string>
+    <string name="title_activity_news">NewsActivity</string>
+</resources>
