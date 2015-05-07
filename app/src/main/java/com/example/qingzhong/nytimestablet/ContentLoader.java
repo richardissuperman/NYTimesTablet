@@ -70,7 +70,7 @@ public class ContentLoader extends AsyncTask<String,Integer,String>{
                     // Construct the URL for the OpenWeatherMap query
                     // Possible parameters are avaiable at OWM's forecast API page, at
                     // http://openweathermap.org/API#forecast
-                    publishProgress(0);
+                    publishProgress(10);
                     Log.e("inputstream", "1");
                     URL url = new URL(ContentContract.basePath+ContentContract.articleParamter+ContentContract.articleKeyParameter+"="+ContentContract.articleKey);
                     Log.e("URL is",ContentContract.basePath+ContentContract.articleParamter+ContentContract.articleKeyParameter+"="+ContentContract.articleKey);
