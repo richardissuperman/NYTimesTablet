@@ -2,9 +2,11 @@ package com.example.qingzhong.nytimestablet;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,7 +33,12 @@ public class ContentFragment extends Fragment {
     public AsyncTaskLoader<JSONArray> contentLoader;
     public ArrayList<String> adpList;
     public  ContentListAdapter adp;
+
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private String type;
     private replaceContentFragmentInterface replaceCallBack;
+
+    public int pagecount=0;
 
     public ArrayList<JSONObject> detailList=new ArrayList<JSONObject>();
 
@@ -64,6 +71,26 @@ public class ContentFragment extends Fragment {
         testText=(TextView)getActivity().findViewById(R.id.testtext);
         contentList=(ListView)getActivity().findViewById(R.id.contentList);
         loadingImg=(ImageView)getActivity().findViewById(R.id.loadingImg);
+        swipeRefreshLayout=(SwipeRefreshLayout)getActivity().findViewById(R.id.swipelayout);
+
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                swipeRefreshLayout.setRefreshing(true);
+
+               // new Thread.UncaughtExceptionHandler()
+                ( new Handler()).postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                      swipeRefreshLayout.setRefreshing(false);
+                        new ContentLoader(ContentFragment.this).execute(type,pagecount+"");
+                        pagecount++;
+                    }
+                },2000);
+
+            }
+        });
 
         if(savedInstanceState!=null){
             Log.e("AAAAAAAA","yep savedinstance is captured");
@@ -78,6 +105,8 @@ public class ContentFragment extends Fragment {
     }
 
     public void updateContent(String type){
+
+        this.type=type;
 
         Toast.makeText(getActivity(), getResources().getString(R.string.testupdatecontent)+" "+type,Toast.LENGTH_SHORT).show();
         testText.setText(type);
@@ -106,7 +135,8 @@ public class ContentFragment extends Fragment {
             }
         });
 
-        new ContentLoader(this).execute(type);
+        new ContentLoader(this).execute(type,pagecount+"");
+        pagecount++;
     }
 
 

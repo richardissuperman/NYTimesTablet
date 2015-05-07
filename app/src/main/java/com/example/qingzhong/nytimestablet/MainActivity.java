@@ -40,24 +40,7 @@ public class MainActivity extends  FragmentActivity implements ChoiceFragment.on
         //this.fuboTest();
     }
 
-    public void fuboTest(){
 
-        try {
-            URL url = new URL("https://192.168.1.5:7443/worklightconsole");
-            URLConnection urlConnection = url.openConnection();
-
-            InputStream in = urlConnection.getInputStream();
-            Log.e("HTTPS!!!!!!!!!", in.toString());
-        }
-
-        catch (Exception e){
-            String ant=e.toString();
-            Toast.makeText(this,e.toString(),Toast.LENGTH_LONG).show();
-            Log.e("HTTPSError",e.toString());
-        }
-        //copyInputStreamToOutputStream(in, System.out);
-
-    }
 
 
     @Override

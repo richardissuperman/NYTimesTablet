@@ -55,11 +55,17 @@ public class ContentLoader extends AsyncTask<String,Integer,String>{
     protected String doInBackground(String... params) {
 
 
+
        // URL url;
         HttpURLConnection urlConnection;
         //StringBuffer buffer=new StringBuffer()
 
         BufferedReader reader;
+
+        String pagePararmeter=params[1];
+
+
+        Log.e("Parameters",params[1]);
 
 
         //String line=null;
@@ -72,7 +78,7 @@ public class ContentLoader extends AsyncTask<String,Integer,String>{
                     // http://openweathermap.org/API#forecast
                     publishProgress(10);
                     Log.e("inputstream", "1");
-                    URL url = new URL(ContentContract.basePath+ContentContract.articleParamter+ContentContract.articleKeyParameter+"="+ContentContract.articleKey);
+                    URL url = new URL(ContentContract.basePath+ContentContract.articleParamter+ContentContract.articleKeyParameter+"="+ContentContract.articleKey+"&page="+pagePararmeter);
                     Log.e("URL is",ContentContract.basePath+ContentContract.articleParamter+ContentContract.articleKeyParameter+"="+ContentContract.articleKey);
                     Log.e("inputstream", "1.1");
                     // Create the request to OpenWeatherMap, and open the connection
