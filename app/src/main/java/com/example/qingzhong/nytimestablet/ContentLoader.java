@@ -79,7 +79,7 @@ public class ContentLoader extends AsyncTask<String,Integer,String>{
                     publishProgress(10);
                     Log.e("inputstream", "1");
                     URL url = new URL(ContentContract.basePath+ContentContract.articleParamter+ContentContract.articleKeyParameter+"="+ContentContract.articleKey+"&page="+pagePararmeter);
-                    Log.e("URL is",ContentContract.basePath+ContentContract.articleParamter+ContentContract.articleKeyParameter+"="+ContentContract.articleKey);
+                    Log.e("URL is",ContentContract.basePath+ContentContract.articleParamter+ContentContract.articleKeyParameter+"="+ContentContract.articleKey+"&page="+pagePararmeter);
                     Log.e("inputstream", "1.1");
                     // Create the request to OpenWeatherMap, and open the connection
                     urlConnection = (HttpURLConnection) url.openConnection();

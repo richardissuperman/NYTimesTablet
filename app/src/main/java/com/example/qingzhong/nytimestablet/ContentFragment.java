@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -35,6 +36,7 @@ public class ContentFragment extends Fragment {
     public  ContentListAdapter adp;
 
     private SwipeRefreshLayout swipeRefreshLayout;
+    //private ScrollView scrollView;
     private String type;
     private replaceContentFragmentInterface replaceCallBack;
 
@@ -72,6 +74,11 @@ public class ContentFragment extends Fragment {
         contentList=(ListView)getActivity().findViewById(R.id.contentList);
         loadingImg=(ImageView)getActivity().findViewById(R.id.loadingImg);
         swipeRefreshLayout=(SwipeRefreshLayout)getActivity().findViewById(R.id.swipelayout);
+       // scrollView=(ScrollView)getActivity().findViewById(R.id.scrollview);
+
+
+
+
 
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -83,14 +90,39 @@ public class ContentFragment extends Fragment {
                 ( new Handler()).postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                      swipeRefreshLayout.setRefreshing(false);
                         new ContentLoader(ContentFragment.this).execute(type,pagecount+"");
                         pagecount++;
+                        swipeRefreshLayout.setRefreshing(false);
+
                     }
                 },2000);
 
             }
         });
+
+
+
+        contentList.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+                Log.e("scroll state", scrollState + "");
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, final int totalItemCount) {
+
+                  if(firstVisibleItem + visibleItemCount >= totalItemCount && totalItemCount != 0 && !swipeRefreshLayout.isRefreshing() && pagecount > 0){
+                      setRefresh();
+                  }
+
+//
+            }
+
+
+        });
+
+
+        //swipeRefreshLayout.canChildScrollUp();
 
         if(savedInstanceState!=null){
             Log.e("AAAAAAAA","yep savedinstance is captured");
@@ -102,6 +134,39 @@ public class ContentFragment extends Fragment {
                 updateContent(savedInstanceState.getString("type"));
             }
         }
+    }
+
+
+    private synchronized void setRefresh(){
+
+        //if (firstVisibleItem + visibleItemCount >= totalItemCount && totalItemCount != 0 && !swipeRefreshLayout.isRefreshing() && pagecount > 0) {
+
+            swipeRefreshLayout.setRefreshing(true);
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+
+
+                    //if(pagecount>0) {
+
+                    // float differ=   swipeRefreshLayout.getY();
+
+                    Log.e("the Y change", "the Y of last listview is " + contentList.getChildAt(contentList.getChildCount() - 1).getY() + " and the Y of father layout is  " + (swipeRefreshLayout.getY() + swipeRefreshLayout.getHeight()));
+                    pagecount--;
+                    //new ContentLoader(ContentFragment.this).execute(type,pagecount+"");
+
+                    //  }
+
+                    // new ContentLoader(ContentFragment.this).execute(type,pagecount+"");
+                    // swipeRefreshLayout.setRefreshing(false);
+                    swipeRefreshLayout.setRefreshing(false);
+
+                }
+            }, 2000);
+
+
+      //  }
+
     }
 
     public void updateContent(String type){
