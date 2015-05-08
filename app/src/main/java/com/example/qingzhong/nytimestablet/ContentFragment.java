@@ -34,6 +34,7 @@ public class ContentFragment extends Fragment {
     public AsyncTaskLoader<JSONArray> contentLoader;
     public ArrayList<String> adpList;
     public  ContentListAdapter adp;
+    private TextView pagetext;
 
     private SwipeRefreshLayout swipeRefreshLayout;
     //private ScrollView scrollView;
@@ -74,6 +75,8 @@ public class ContentFragment extends Fragment {
         contentList=(ListView)getActivity().findViewById(R.id.contentList);
         loadingImg=(ImageView)getActivity().findViewById(R.id.loadingImg);
         swipeRefreshLayout=(SwipeRefreshLayout)getActivity().findViewById(R.id.swipelayout);
+        pagetext=(TextView)getActivity().findViewById(R.id.testpage);
+         pagetext.setText(pagecount+"");
        // scrollView=(ScrollView)getActivity().findViewById(R.id.scrollview);
 
 
@@ -84,18 +87,32 @@ public class ContentFragment extends Fragment {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+
                 swipeRefreshLayout.setRefreshing(true);
 
-               // new Thread.UncaughtExceptionHandler()
-                ( new Handler()).postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        new ContentLoader(ContentFragment.this).execute(type,pagecount+"");
-                        pagecount++;
-                        swipeRefreshLayout.setRefreshing(false);
 
-                    }
-                },2000);
+                //if(pagecount>0) {
+
+                    Log.e("page count is",pagecount+"");
+
+
+                    // new Thread.UncaughtExceptionHandler()
+                    (new Handler()).postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(pagecount>0) {
+                                pagecount--;
+                                pagetext.setText(pagecount+"");
+
+                                new ContentLoader(ContentFragment.this).execute(type, pagecount + "");
+                                //pagecount--;
+                            }
+                            swipeRefreshLayout.setRefreshing(false);
+
+                        }
+                    }, 2000);
+
+               // }
 
             }
         });
@@ -111,8 +128,19 @@ public class ContentFragment extends Fragment {
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, final int totalItemCount) {
 
-                  if(firstVisibleItem + visibleItemCount >= totalItemCount && totalItemCount != 0 && !swipeRefreshLayout.isRefreshing() && pagecount > 0){
-                      setRefresh();
+
+                if(firstVisibleItem + visibleItemCount >= totalItemCount && totalItemCount != 0 && !swipeRefreshLayout.isRefreshing()){
+
+
+
+                    Log.e("false",contentList.getChildAt(contentList.getChildCount()-1).getBottom()+" "+contentList.getHeight());
+
+                    if(contentList.getChildAt(contentList.getChildCount()-1).getBottom()<=contentList.getHeight()) {
+
+                        swipeRefreshLayout.setRefreshing(true);
+
+                        setRefresh();
+                    }
                   }
 
 //
@@ -141,7 +169,6 @@ public class ContentFragment extends Fragment {
 
         //if (firstVisibleItem + visibleItemCount >= totalItemCount && totalItemCount != 0 && !swipeRefreshLayout.isRefreshing() && pagecount > 0) {
 
-            swipeRefreshLayout.setRefreshing(true);
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -152,14 +179,17 @@ public class ContentFragment extends Fragment {
                     // float differ=   swipeRefreshLayout.getY();
 
                     Log.e("the Y change", "the Y of last listview is " + contentList.getChildAt(contentList.getChildCount() - 1).getY() + " and the Y of father layout is  " + (swipeRefreshLayout.getY() + swipeRefreshLayout.getHeight()));
-                    pagecount--;
-                    //new ContentLoader(ContentFragment.this).execute(type,pagecount+"");
+                    pagecount++;
+                    pagetext.setText(pagecount+"");
+
+                    new ContentLoader(ContentFragment.this).execute(type,pagecount+"");
 
                     //  }
 
                     // new ContentLoader(ContentFragment.this).execute(type,pagecount+"");
                     // swipeRefreshLayout.setRefreshing(false);
                     swipeRefreshLayout.setRefreshing(false);
+                    contentList.setSelection(0);
 
                 }
             }, 2000);
@@ -200,8 +230,10 @@ public class ContentFragment extends Fragment {
             }
         });
 
-        new ContentLoader(this).execute(type,pagecount+"");
-        pagecount++;
+        //if(pagecount>0) {
+            new ContentLoader(this).execute(type, pagecount + "");
+          // pagecount++;
+        //}
     }
 
 
@@ -212,7 +244,7 @@ public class ContentFragment extends Fragment {
 
     @Override
     public void onAttach(Activity activity) {
-        Log.d("Ashley","onAttach");
+        Log.d("Ashley", "onAttach");
 
         super.onAttach(activity);
 
