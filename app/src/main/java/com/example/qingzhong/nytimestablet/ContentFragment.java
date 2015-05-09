@@ -39,21 +39,16 @@ public class ContentFragment extends Fragment {
     private TextView pagetext;
     private SharedPreferences listPreference;
     private SharedPreferences.Editor listEditor;
-
     private SwipeRefreshLayout swipeRefreshLayout;
-    //private ScrollView scrollView;
     private String type;
     private replaceContentFragmentInterface replaceCallBack;
-
     public int pagecount=0;
-
     public ArrayList<JSONObject> detailList=new ArrayList<JSONObject>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-      //  contentLoader=getLoaderManager().initLoader(0,null,this);
 
 
     }
@@ -75,88 +70,14 @@ public class ContentFragment extends Fragment {
         Log.d("Ashley","Activity Created");
 
         super.onActivityCreated(savedInstanceState);
-        testText=(TextView)getActivity().findViewById(R.id.testtext);
-        contentList=(ListView)getActivity().findViewById(R.id.contentList);
-        loadingImg=(ImageView)getActivity().findViewById(R.id.loadingImg);
-        swipeRefreshLayout=(SwipeRefreshLayout)getActivity().findViewById(R.id.swipelayout);
-        pagetext=(TextView)getActivity().findViewById(R.id.testpage);
-        pagetext.setText(pagecount+"");
-        listPreference= PreferenceManager.getDefaultSharedPreferences(getActivity());
-        listEditor=listPreference.edit();
 
-       // scrollView=(ScrollView)getActivity().findViewById(R.id.scrollview);
+        initializeWidgets();
+
+        setWidgetsListener();
 
 
 
-
-
-
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-
-                swipeRefreshLayout.setRefreshing(true);
-
-
-                //if(pagecount>0) {
-
-                    Log.e("page count is",pagecount+"");
-
-
-                    // new Thread.UncaughtExceptionHandler()
-                    (new Handler()).postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            if(pagecount>0) {
-                                pagecount--;
-                                pagetext.setText(pagecount+"");
-
-                                new ContentLoader(ContentFragment.this).execute(type, pagecount + "");
-                                //pagecount--;
-                            }
-                            swipeRefreshLayout.setRefreshing(false);
-
-                        }
-                    }, 2000);
-
-               // }
-
-            }
-        });
-
-
-
-        contentList.setOnScrollListener(new AbsListView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
-                Log.e("scroll state", scrollState + "");
-            }
-
-            @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, final int totalItemCount) {
-
-
-                if(firstVisibleItem + visibleItemCount >= totalItemCount && totalItemCount != 0 && !swipeRefreshLayout.isRefreshing()){
-
-
-
-                    Log.e("false",contentList.getChildAt(contentList.getChildCount()-1).getBottom()+" "+contentList.getHeight());
-
-                    if(contentList.getChildAt(contentList.getChildCount()-1).getBottom()<=contentList.getHeight()) {
-
-                        swipeRefreshLayout.setRefreshing(true);
-
-                        setRefresh(++pagecount);
-                    }
-                  }
-
-//
-            }
-
-
-        });
-
-
+        //recover from activity destroy
         if(savedInstanceState!=null){
             Log.e("AAAAAAAA","yep savedinstance is captured");
 
@@ -164,10 +85,11 @@ public class ContentFragment extends Fragment {
                 Log.e("AAAAAAAA","yep type is captured");
 
 
-                updateContent(savedInstanceState.getString("type"));
+            updateContent(savedInstanceState.getString("type"));
             }
         }
 
+        //recover from fragment replace
         else{
 
             SharedPreferences sharedPreferences=PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -179,33 +101,18 @@ public class ContentFragment extends Fragment {
     }
 
 
+    //also refresh , but for after ini
     private synchronized void setRefresh(final int page){
 
 
         Toast.makeText(getActivity(),"starting refresh , page is "+pagecount,Toast.LENGTH_SHORT).show();
-
-
-        //if (firstVisibleItem + visibleItemCount >= totalItemCount && totalItemCount != 0 && !swipeRefreshLayout.isRefreshing() && pagecount > 0) {
-
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-
-
-                    //if(pagecount>0) {
-
-                    // float differ=   swipeRefreshLayout.getY();
-
-                   // Log.e("the Y change", "the Y of last listview is " + contentList.getChildAt(contentList.getChildCount() - 1).getY() + " and the Y of father layout is  " + (swipeRefreshLayout.getY() + swipeRefreshLayout.getHeight()));
                     pagecount=page;
                     pagetext.setText(pagecount+"");
 
                     new ContentLoader(ContentFragment.this).execute(type,pagecount+"");
-
-                    //  }
-
-                    // new ContentLoader(ContentFragment.this).execute(type,pagecount+"");
-                    // swipeRefreshLayout.setRefreshing(false);
                     swipeRefreshLayout.setRefreshing(false);
                     contentList.setSelection(0);
 
@@ -217,6 +124,7 @@ public class ContentFragment extends Fragment {
 
     }
 
+    //refresh, but also initialize list
     public void updateContent(String type){
 
         this.type=type;
@@ -245,10 +153,8 @@ public class ContentFragment extends Fragment {
             }
         });
 
-        //if(pagecount>0) {
             new ContentLoader(this).execute(type, pagecount + "");
-          // pagecount++;
-        //}
+
     }
 
 
@@ -287,19 +193,85 @@ public class ContentFragment extends Fragment {
         Log.d("Ashley","SAVE INSTANCE");
         Toast.makeText(getActivity(),"saved instance",Toast.LENGTH_LONG).show();
         super.onSaveInstanceState(outState);
-
         outState.putString("type",this.testText.getText().toString());
-
         listEditor.putInt("pagecount",this.pagecount);
         listEditor.putInt("listposition",contentList.getFirstVisiblePosition());
-
         listEditor.apply();
 
     }
 
 
     private void initializeWidgets(){
+        testText=(TextView)getActivity().findViewById(R.id.testtext);
+        contentList=(ListView)getActivity().findViewById(R.id.contentList);
+        loadingImg=(ImageView)getActivity().findViewById(R.id.loadingImg);
+        swipeRefreshLayout=(SwipeRefreshLayout)getActivity().findViewById(R.id.swipelayout);
+        pagetext=(TextView)getActivity().findViewById(R.id.testpage);
+        pagetext.setText(pagecount+"");
+        listPreference= PreferenceManager.getDefaultSharedPreferences(getActivity());
+        listEditor=listPreference.edit();
+    }
 
+
+    private void setWidgetsListener(){
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+
+                swipeRefreshLayout.setRefreshing(true);
+
+                (new Handler()).postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(pagecount>0) {
+                            //pagecount--;
+                           // pagetext.setText(pagecount+"");
+
+                            //new ContentLoader(ContentFragment.this).execute(type, pagecount + "");
+
+                            setRefresh(--pagecount);
+                        }
+                        swipeRefreshLayout.setRefreshing(false);
+
+                    }
+                }, 2000);
+
+                // }
+
+            }
+        });
+
+
+
+        contentList.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+                Log.e("scroll state", scrollState + "");
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, final int totalItemCount) {
+
+
+                if(firstVisibleItem + visibleItemCount >= totalItemCount && totalItemCount != 0 && !swipeRefreshLayout.isRefreshing()){
+
+
+
+                    Log.e("false",contentList.getChildAt(contentList.getChildCount()-1).getBottom()+" "+contentList.getHeight());
+
+                    if(contentList.getChildAt(contentList.getChildCount()-1).getBottom()<=contentList.getHeight()) {
+
+                        swipeRefreshLayout.setRefreshing(true);
+
+                        setRefresh(++pagecount);
+                    }
+                }
+
+
+            }
+
+
+        });
     }
 
     public interface replaceContentFragmentInterface{
