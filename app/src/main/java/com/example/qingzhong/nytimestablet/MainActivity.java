@@ -11,10 +11,6 @@ import android.widget.Toast;
 
 import org.json.JSONObject;
 
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
-
 
 //import java.net.URLConnection;
 
@@ -34,6 +30,7 @@ public class MainActivity extends  FragmentActivity implements ChoiceFragment.on
         setContentView(R.layout.activity_main);
 
         contentFragment=new ContentFragment();
+
         webviewFragment=new WebviewFragment();
         getSupportFragmentManager().beginTransaction().replace(R.id.contentfragmentlayout,contentFragment).addToBackStack(null).commit();
         //contentFragment=(ContentFragment)getSupportFragmentManager().findFragmentById(R.id.content_fragment);

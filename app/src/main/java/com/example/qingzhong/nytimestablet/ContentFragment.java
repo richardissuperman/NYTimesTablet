@@ -1,8 +1,10 @@
 package com.example.qingzhong.nytimestablet;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.AsyncTaskLoader;
@@ -35,6 +37,8 @@ public class ContentFragment extends Fragment {
     public ArrayList<String> adpList;
     public  ContentListAdapter adp;
     private TextView pagetext;
+    private SharedPreferences listPreference;
+    private SharedPreferences.Editor listEditor;
 
     private SwipeRefreshLayout swipeRefreshLayout;
     //private ScrollView scrollView;
@@ -76,7 +80,10 @@ public class ContentFragment extends Fragment {
         loadingImg=(ImageView)getActivity().findViewById(R.id.loadingImg);
         swipeRefreshLayout=(SwipeRefreshLayout)getActivity().findViewById(R.id.swipelayout);
         pagetext=(TextView)getActivity().findViewById(R.id.testpage);
-         pagetext.setText(pagecount+"");
+        pagetext.setText(pagecount+"");
+        listPreference= PreferenceManager.getDefaultSharedPreferences(getActivity());
+        listEditor=listPreference.edit();
+
        // scrollView=(ScrollView)getActivity().findViewById(R.id.scrollview);
 
 
@@ -139,7 +146,7 @@ public class ContentFragment extends Fragment {
 
                         swipeRefreshLayout.setRefreshing(true);
 
-                        setRefresh();
+                        setRefresh(++pagecount);
                     }
                   }
 
@@ -149,8 +156,6 @@ public class ContentFragment extends Fragment {
 
         });
 
-
-        //swipeRefreshLayout.canChildScrollUp();
 
         if(savedInstanceState!=null){
             Log.e("AAAAAAAA","yep savedinstance is captured");
@@ -162,10 +167,23 @@ public class ContentFragment extends Fragment {
                 updateContent(savedInstanceState.getString("type"));
             }
         }
+
+        else{
+
+            SharedPreferences sharedPreferences=PreferenceManager.getDefaultSharedPreferences(getActivity());
+            int page=sharedPreferences.getInt("pagecount",0);
+            int position=sharedPreferences.getInt("position",0);
+            this.pagecount=page;
+            updateContent();
+        }
     }
 
 
-    private synchronized void setRefresh(){
+    private synchronized void setRefresh(final int page){
+
+
+        Toast.makeText(getActivity(),"starting refresh , page is "+pagecount,Toast.LENGTH_SHORT).show();
+
 
         //if (firstVisibleItem + visibleItemCount >= totalItemCount && totalItemCount != 0 && !swipeRefreshLayout.isRefreshing() && pagecount > 0) {
 
@@ -178,8 +196,8 @@ public class ContentFragment extends Fragment {
 
                     // float differ=   swipeRefreshLayout.getY();
 
-                    Log.e("the Y change", "the Y of last listview is " + contentList.getChildAt(contentList.getChildCount() - 1).getY() + " and the Y of father layout is  " + (swipeRefreshLayout.getY() + swipeRefreshLayout.getHeight()));
-                    pagecount++;
+                   // Log.e("the Y change", "the Y of last listview is " + contentList.getChildAt(contentList.getChildCount() - 1).getY() + " and the Y of father layout is  " + (swipeRefreshLayout.getY() + swipeRefreshLayout.getHeight()));
+                    pagecount=page;
                     pagetext.setText(pagecount+"");
 
                     new ContentLoader(ContentFragment.this).execute(type,pagecount+"");
@@ -203,7 +221,7 @@ public class ContentFragment extends Fragment {
 
         this.type=type;
 
-        Toast.makeText(getActivity(), getResources().getString(R.string.testupdatecontent)+" "+type,Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), getResources().getString(R.string.testupdatecontent)+" "+pagecount,Toast.LENGTH_SHORT).show();
         testText.setText(type);
 
         adpList=new ArrayList<String>();
@@ -218,10 +236,7 @@ public class ContentFragment extends Fragment {
         contentList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //Intent intent=new Intent(getActivity(),NewsActivity.class);
-                //intent.putExtra("object",detailList.get(position).toString());
-                //startActivity(intent);
-                //Log.e("detaillist "+position,detailList.get(position).toString());
+
                 Log.e("detaillist "+position,detailList.get(position).toString());
 
                 replaceCallBack.replaceContent(detailList.get(position));
@@ -234,6 +249,11 @@ public class ContentFragment extends Fragment {
             new ContentLoader(this).execute(type, pagecount + "");
           // pagecount++;
         //}
+    }
+
+
+    public void updateContent(){
+        updateContent("article");
     }
 
 
@@ -265,9 +285,20 @@ public class ContentFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
 
         Log.d("Ashley","SAVE INSTANCE");
+        Toast.makeText(getActivity(),"saved instance",Toast.LENGTH_LONG).show();
         super.onSaveInstanceState(outState);
 
         outState.putString("type",this.testText.getText().toString());
+
+        listEditor.putInt("pagecount",this.pagecount);
+        listEditor.putInt("listposition",contentList.getFirstVisiblePosition());
+
+        listEditor.apply();
+
+    }
+
+
+    private void initializeWidgets(){
 
     }
 
